@@ -15,17 +15,16 @@
 
 <h1 style="color:orange;"> whatever </h1>
 <button id="myBtn">Change Color</button>
-<div class="slidecontainer">
-  <input type="range" min="1" max="100" value="100" class="slider" id="mySlider">
-  <strong id="rangeVal"> 100 </strong>
+<div id="theSlider"class="slidecontainer">
+  <input type="range" min="1" max="100" value="10" class="slider">
+  <strong> 10 </strong>
   <label for="mySlider">Color changes per second</label> 
 </div>
 
 <script>
-
-slider = document.getElementById("mySlider");
+slider = document.querySelector("#theSlider input")
 slider.addEventListener("input", function f(){
-	document.getElementById("rangeVal").innerHTML = slider.value.toString();
+	document.querySelector("#theSlider strong").innerHTML = slider.value.toString();
 	if (interval){
 		clearInterval(interval);
 		interval = setInterval(changeColor, 1000/slider.value);
@@ -42,7 +41,7 @@ document.getElementById("myBtn").addEventListener("click", function fun(){
 	else {
 		changeColor();
 		document.getElementById("myBtn").innerHTML = "Stop color change";
-		interval = setInterval(changeColor, 1000/document.getElementById("mySlider").value);
+		interval = setInterval(changeColor, 1000/slider.value);
 	}
 });
 
