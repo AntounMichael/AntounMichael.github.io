@@ -1,9 +1,65 @@
 <!DOCTYPE html>
 <html>
+
+<head>
+	<title> Cool Site </title>
+	<link rel="stylesheet" type="text/css" href="styles/style.css" /> 
+</head>
+
 <body>
-<h1>Hello World</h1>
-<h2>Hello World</h2>
-<h1>Hello World</h1>
-<p>I'm hosted with GitHub Pages.</p>
+<h1 id="headerText">Hello World</h1>
+<h4>My name is Michael</h4>
+<p>I like <span class="food">apples</span> a lot!</p>
+<p>I have <span class="family">brothers</span>!</p>
+
+
+<h1 style="color:orange;"> whatever </h1>
+<button id="myBtn">Change Color</button>
+<div class="slidecontainer">
+  <input type="range" min="1" max="100" value="100" class="slider" id="mySlider">
+  <strong id="rangeVal"> 100 </strong>
+  <label for="mySlider">Color changes per second</label> 
+</div>
+
+<script>
+
+slider = document.getElementById("mySlider");
+slider.addEventListener("input", function f(){
+	document.getElementById("rangeVal").innerHTML = slider.value.toString();
+	if (interval){
+		clearInterval(interval);
+		interval = setInterval(changeColor, 1000/slider.value);
+	}
+});
+
+var interval;
+document.getElementById("myBtn").addEventListener("click", function fun(){
+	//changeColor();
+	if (interval) {
+		document.getElementById("myBtn").innerHTML = "Change color";
+		stopColor();
+	}
+	else {
+		changeColor();
+		document.getElementById("myBtn").innerHTML = "Stop color change";
+		interval = setInterval(changeColor, 1000/document.getElementById("mySlider").value);
+	}
+});
+
+
+function stopColor(){
+	clearInterval(interval);
+	interval = null;
+}
+function changeColor(){
+
+	r = Math.floor(Math.random() * 256);
+	g = Math.floor(Math.random() * 256);
+	b = Math.floor(Math.random() * 256);
+	document.body.style.background = "rgb(" + r.toString() + ", " + g.toString() + ", " + b.toString() + ")";
+}
+
+</script>
 </body>
+
 </html>
