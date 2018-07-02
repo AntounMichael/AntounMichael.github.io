@@ -1,0 +1,14 @@
+body{
+	color: lightgreen;
+}
+h1{
+	color:red;
+}
+.food{
+	color:purple;
+	text-decoration: underline;
+}
+.family{
+	font-weight: bold;
+	color:blue;
+}
