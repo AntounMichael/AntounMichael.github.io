@@ -11,9 +11,9 @@
 
 <button id="myBtn">Change Color</button>
 <div id="theSlider"class="slidecontainer">
-  <input type="range" min="1" max="100" value="10" class="slider">
-  <strong> 10 </strong>
-  <label for="mySlider">Color changes per second</label> 
+  <input type="range" min="1" max="1000" value="100" class="slider">
+  <strong> 100 </strong>
+  <label for="mySlider">Color changes per minute</label> 
 </div>
 
 <a href="https://antounmichael.github.io/">Back to home</a>
@@ -25,7 +25,7 @@ slider.addEventListener("input", function f(){
 	document.querySelector("#theSlider strong").innerHTML = slider.value.toString();
 	if (interval){
 		clearInterval(interval);
-		interval = setInterval(changeColor, 1000/slider.value);
+		interval = setInterval(changeColor, 60000/slider.value);
 	}
 });
 
@@ -39,7 +39,7 @@ document.getElementById("myBtn").addEventListener("click", function fun(){
 	else {
 		changeColor();
 		document.getElementById("myBtn").innerHTML = "Stop color change";
-		interval = setInterval(changeColor, 1000/slider.value);
+		interval = setInterval(changeColor, 60000/slider.value);
 	}
 });
 
