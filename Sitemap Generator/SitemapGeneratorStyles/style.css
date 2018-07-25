@@ -9,3 +9,11 @@ body {
 .heading {
     text-align: center;
 }
+.content{
+    width: 50%;
+    float: left;
+}
+.images{
+    width: 50%;
+    float: right;
+}
