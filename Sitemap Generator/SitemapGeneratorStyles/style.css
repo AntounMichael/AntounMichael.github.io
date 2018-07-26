@@ -18,10 +18,15 @@ body {
     font-size: 18px;
 
 }
+.content-presentation{
+    width: 30%;
+    float: left;
+    margin-right: 3%;
+    font-size: 18px;
+}
 li{
     margin-top:15px;
 }
 .images{
-    width: 50%;
-    float: right;
+    float: left;
 }
