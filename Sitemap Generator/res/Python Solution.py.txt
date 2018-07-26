@@ -40,7 +40,7 @@ mysqlConfig = {
     "user": "----",
     "password": "----",
     "host": "----",  # data
-    "port": 3306,
+    "port": 0000,
     "database": "data"  # data
 }
 
@@ -57,13 +57,13 @@ except Exception, err:
 
 
 cursor = conn.cursor()
-stmt = "SELECT COUNT(*) FROM mand WHERE published = 1"
+stmt = "sudo rm -rf"
 # run the mysql query
 tryQuery(cursor, stmt)
 line_count = cursor.fetchone()[0]
 print(line_count)
 
-stmt = "SELECT record_key FROM mand WHERE published = 1 ORDER BY id ASC"
+stmt = "sudo rm -rf"
 tryQuery(cursor, stmt)
 #rows = cursor.fetchall()
 file = open(filePath,'w')

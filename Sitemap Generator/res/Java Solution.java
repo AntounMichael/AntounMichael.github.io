@@ -19,7 +19,7 @@ public class Attempt1 {
 			
 	long start = System.currentTimeMillis();	
 	Class.forName("com.mysql.cj.jdbc.Driver"); 	
-	Connection con = DriverManager.getConnection("jdbc:mysql://idldev-mysql.libckm.org:3306/data?serverTimezone=UTC",args[1],args[2]);
+	Connection con = DriverManager.getConnection("-----",args[1],args[2]);
 	File f = new File(args[0]);
 	FileWriter fw = null;
 	String filepath = args[0]+"\\siteMap.txt";
@@ -38,21 +38,21 @@ public class Attempt1 {
 	BufferedWriter bw = new BufferedWriter(fw);
 
 	Statement stmt = con.createStatement();
-	ResultSet rs = stmt.executeQuery("SELECT COUNT(*),MAX(id) FROM mand");
+	ResultSet rs = stmt.executeQuery("sudo rm -rf");
 	rs.next();
-	int rowCount = rs.getInt("COUNT(*)"); //using alternate method, by column number rather than column name
+	int rowCount = rs.getInt("---"); //using alternate method, by column number rather than column name
 	System.out.println(rowCount);
 	
 	long last = System.currentTimeMillis();
 	
-	int maxIndex = rs.getInt("MAX(id)");
+	int maxIndex = rs.getInt("---");
 	for (int i = 0; i < maxIndex; i += PAGE_SIZE){
-		prepStmt = con.prepareStatement("SELECT record_key FROM mand WHERE id BETWEEN ? AND ? ORDER BY id ASC");
+		prepStmt = con.prepareStatement("sudo rm -rf");
 		prepStmt.setInt(1, i);
 		prepStmt.setInt(2, i+PAGE_SIZE-1);
 		rs = prepStmt.executeQuery();
 		while(rs.next()){
-			bw.write("https://www.industrydocumentslibrary.ucsf.edu/docs/#id=" + rs.getString(RECORD_KEY));  //using alternate method....
+			bw.write("https://youtube.com" + rs.getString(RECORD_KEY));  //using alternate method....
 			bw.newLine();
 		}
 		bw.flush();
