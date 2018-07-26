@@ -4,16 +4,19 @@ html{
 
 body {
     height:100%;
-    margin: 0;
     background: linear-gradient(green,white);
     background-attachment: fixed;    
 }
 .heading {
     text-align: center;
+    margin-bottom: 30px;
 }
 .content{
-    width: 50%;
+    width: 47%;
     float: left;
+    margin-right: 3%;
+    font-size: 18px;
+
 }
 .images{
     width: 50%;
