@@ -18,6 +18,9 @@ body {
     font-size: 18px;
 
 }
+li{
+    margin-top:15px;
+}
 .images{
     width: 50%;
     float: right;
