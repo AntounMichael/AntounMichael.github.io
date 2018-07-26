@@ -4,8 +4,10 @@ html{
 
 body {
     height:100%;
+    margin: 0;
     background: linear-gradient(green,white);
-    }
+    background-attachment: fixed;    
+}
 .heading {
     text-align: center;
 }
