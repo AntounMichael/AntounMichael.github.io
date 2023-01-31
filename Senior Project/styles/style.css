@@ -5,7 +5,13 @@ body{
 
 h1 {
 	font-size:32pt;
+	margin-top: auto;
+	margin-bottom: auto;
 	align-self: center;
+}
+
+h2 {
+	font-size: 22pt;
 }
 
 img {
@@ -16,8 +22,8 @@ img {
   }
 
 iframe {
-	width: 160vh;
-	height: 90vh;
+	width: 142.195vh;
+	height: 80vh;
 	align-self: center;
 }
 
