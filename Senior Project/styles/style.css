@@ -16,6 +16,8 @@ img {
   }
 
 iframe {
+	width: 160vh;
+	height: 90vh;
 	align-self: center;
 }
 
@@ -48,8 +50,15 @@ p {
 
 .cols-container {
 	display: flex;
+	width: inherit;
 	flex-direction: row;
 	margin-top: 15px;
+}
+
+.col {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
 }
 
 .headshot-container {
