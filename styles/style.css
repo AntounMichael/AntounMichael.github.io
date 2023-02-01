@@ -1,12 +1,75 @@
 body{
-	background-color:rgb(184, 137, 220);
+	background-color:rgba(158, 137, 220, 0.803);
 	font-family: Arial, Helvetica, sans-serif;
 }
 
+p {
+	width: 100%;
+	margin-block-start: .5em;
+    margin-block-end: .5em;
+}
+
+img {
+	display:block;
+	padding-left: .5em;
+	padding-right: .5em;
+	padding-top: .5em;
+	padding-bottom: .5em;
+	width:80%;
+}
+.img-container {
+	display:flex;
+	padding-left: .5em;
+	padding-right: .5em;
+	padding-top: .5em;
+	padding-bottom: .5em;
+	width:100%;
+	justify-content: center;
+	max-height: 25em;
+}
+
+h1 {
+	margin-top: .2em;
+	margin-bottom: .5em;
+}
+h2 {
+	display:flex;
+	margin-bottom: .1em;
+}
+h3 {
+	align-self: flex-start;
+	margin-block-end: .1em;
+	margin-block-start: .5em;
+}
+h4{
+	margin-block-end: .3em;
+	margin-block-start: 0em;
+	font-weight:normal;
+	font-size: large;
+}
+.spacer {
+	display: block;
+    font-size: 2em;
+    margin-block-start: .6em;
+}
 
 .projects-container {
 	display: flex;
 	flex-direction: column;	
+}
+
+.top-row {
+	width:auto;
+	display: flex;
+	flex-direction: row;	
+	justify-content: center;
+}
+
+.project-row {
+	width:auto;
+	display: flex;
+	flex-direction: row;	
+	justify-content: center;
 }
 
 .project {
@@ -19,6 +82,7 @@ body{
 }
 .intro {
 	font-size: 20px;
+	color:black;
 }
 
 .columns-container {
@@ -29,12 +93,23 @@ body{
 .headshot-container {
 	display: flex;
 	flex-direction: column;
+	align-items: center;
+	width: 23em;
+}
+
+.info-container {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	width: 40em;
 }
 
 .share-container {
 	display: flex; /* or inline-flex */
 	flex-direction: row;
-	width:200px;
+	width:12em;
+	min-height: 1em;
+	justify-content: center;
   }
 
 .share-container > div{
@@ -51,7 +126,7 @@ body{
 	padding: 0.1em 0.6em;
 	outline: none;
 	text-align: center;
-	font-size: 0.9em;
+	font-size: .95em;
 	margin: 0 0.2em;
   }
   
@@ -73,3 +148,29 @@ body{
   .share-btn.hackernews  { background: #ff6600; }
   .share-btn.linkedin    { background: #4875B4; }
   .share-btn.email       { background: #444444; }
+
+  /* Tooltip container */
+.tooltip {
+	position: relative;
+	display: -block;
+  }
+  
+  /* Tooltip text */
+  .tooltip .tooltiptext {
+	visibility: hidden;
+	width: 120px;
+	background-color: rgba(0, 0, 0, 0.738);
+	color: #fff;
+	text-align: center;
+	padding: 5px 0;
+	border-radius: 6px;
+    font-size: small;
+	/* Position the tooltip text - see examples below! */
+	position: absolute;
+	z-index: 1;
+  }
+  
+  /* Show the tooltip text when you mouse over the tooltip container */
+  .tooltip:hover .tooltiptext {
+	visibility: visible;
+  }
