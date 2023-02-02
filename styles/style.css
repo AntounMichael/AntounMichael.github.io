@@ -91,10 +91,24 @@ h4{
 }
 
 .headshot-container {
+	background-color: #dd4c3900;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
 	width: 23em;
+	text-decoration: none;
+}
+
+.project-container {
+	background-color: rgba(255, 138, 28, 0.582);
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	width: 23em;
+	text-decoration: none;
+}
+.project-container:hover {
+	background-color: rgba(0, 255, 21, 0.521);
 }
 
 .info-container {
