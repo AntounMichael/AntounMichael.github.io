@@ -14,15 +14,16 @@ h2 {
 }
 
 img {
-	width: 32vw;
-	height: 37.685vw;
-	margin-left: .4vw;
-	margin-right: .7vw;
+	width: 37em;
+	height: 43.57305em;
+	margin-left: .4em;
+	margin-right: .7em;
   }
 
 iframe {
-	width: 142.195vh;
-	height: 80vh;
+	margin-top: 1em;
+	width: 177.75vh;
+	height: 100vh;
 	align-self: center;
 }
 
