@@ -1,5 +1,5 @@
 body{
-	background-color:#8A9EA7;
+	background-image: radial-gradient(circle at top left, #19332f 00%, #8A9EA7 50%,   #63527a  100% );
 	font-family: Arial, Helvetica, sans-serif;
 }
 
@@ -26,6 +26,7 @@ img {
 	width:100%;
 	justify-content: center;
 	max-height: 25em;
+
 }
 
 h1 {
@@ -71,6 +72,7 @@ h4{
 	flex-direction: row;	
 	justify-content: center;
 	gap: 1em;
+	margin-bottom: 1em;
 }
 
 .project {
@@ -108,6 +110,8 @@ h4{
 	width: 23em;
 	height: 26em;
 	text-decoration: none;
+	border-radius: 5%;
+
 }
 .project-container:hover {
 	background-color: #8F5B34;
@@ -132,13 +136,14 @@ h4{
 .share-container {
 	display: flex; /* or inline-flex */
 	flex-direction: row;
-	width:12em;
 	min-height: 1em;
-	justify-content: center;
+	max-width: 100%;
+	justify-content: center;	
   }
 
 .share-container > div{
 	flex: 1; /* or inline-flex */
+	border-radius: 15%;
   }
 
 /** Social Button CSS **/
@@ -147,12 +152,12 @@ h4{
 .share-btn {
 	display: inline-block;
 	color: #ffffff;
-	border: none;
 	padding: 0.1em 0.6em;
 	outline: none;
 	text-align: center;
-	font-size: .95em;
+	font-size: 1.05em;
 	margin: 0 0.2em;
+	border-radius: 7%;
   }
   
   .share-btn:focus,
