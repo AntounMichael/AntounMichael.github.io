@@ -16,7 +16,7 @@ module.exports = {
         }
       },
       fontFamily: {
-        terminal: ['"VT323"', 'monospace'],
+        mono: ['JetBrains Mono', 'Consolas', 'Monaco', 'monospace'],
       },
       animation: {
         'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',

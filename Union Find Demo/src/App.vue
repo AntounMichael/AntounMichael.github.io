@@ -1,8 +1,8 @@
 <template>
-  <div class="min-h-screen p-6">
+  <div class="min-h-screen p-6 font-mono">
     <header class="mb-8 text-center">
-      <h1 class="text-4xl mb-2 font-bold">Union Find Algorithm Demo</h1>
-      <p class="text-xl text-gray-300">Watch as points connect to form a path from top to bottom</p>
+      <h1 class="text-4xl mb-2 font-bold font-mono text-matrix-green">Union Find Algorithm Demo</h1>
+      <p class="text-xl text-gray-300 font-mono">Watch as points connect to form a path from top to bottom</p>
     </header>
     
     <div class="max-w-6xl mx-auto">
@@ -20,10 +20,10 @@
         </div>
         
         <div class="bg-black bg-opacity-90 p-6 rounded-lg border border-matrix-green">
-          <h2 class="text-2xl mb-4 font-bold">Controls</h2>
+          <h2 class="text-2xl mb-4 font-bold font-mono text-matrix-green">Controls</h2>
           
           <div class="mb-4">
-            <label class="block mb-2">Grid Width: {{ gridWidth }}</label>
+            <label class="block mb-2 font-mono">Grid Width: {{ gridWidth }}</label>
             <input 
               type="range" 
               min="10" 
@@ -34,7 +34,7 @@
           </div>
           
           <div class="mb-4">
-            <label class="block mb-2">Grid Height: {{ gridHeight }}</label>
+            <label class="block mb-2 font-mono">Grid Height: {{ gridHeight }}</label>
             <input 
               type="range" 
               min="10" 
@@ -45,7 +45,7 @@
           </div>
           
           <div class="mb-6">
-            <label class="block mb-2">Animation Speed</label>
+            <label class="block mb-2 font-mono">Animation Speed</label>
             <input 
               type="range" 
               min="1" 
@@ -56,10 +56,10 @@
           </div>
           
           <div class="flex space-x-4">
-            <button @click="togglePause" class="btn flex-1">
+            <button @click="togglePause" class="btn flex-1 font-mono">
               {{ isPaused ? 'Resume' : 'Pause' }}
             </button>
-            <button @click="resetGrid" class="btn flex-1">
+            <button @click="resetGrid" class="btn flex-1 font-mono">
               Reset
             </button>
           </div>
