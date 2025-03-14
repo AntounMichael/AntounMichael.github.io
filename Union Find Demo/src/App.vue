@@ -1,7 +1,7 @@
 <template>
   <div class="min-h-screen p-6">
     <header class="mb-8 text-center">
-      <h1 class="text-4xl mb-2 font-bold">Union Find Algorithm Visualization</h1>
+      <h1 class="text-4xl mb-2 font-bold">Union Find Algorithm Demo</h1>
       <p class="text-xl text-gray-300">Watch as points connect to form a path from top to bottom</p>
     </header>
     
@@ -90,6 +90,7 @@ export default defineComponent({
     };
     
     const resetGrid = () => {
+      isPaused.value = false;
       resetKey.value++;
     };
     
