@@ -1,10 +1,12 @@
 <template>
   <div class="relative">
     <div 
-      class="grid gap-1" 
+      ref="gridRef"
+      class="grid" 
       :style="{ 
         gridTemplateColumns: `repeat(${width}, minmax(0, 1fr))`,
-        gridTemplateRows: `repeat(${height}, minmax(0, 1fr))`
+        gridTemplateRows: `repeat(${height}, minmax(0, 1fr))`,
+        gap: `${gap}px`
       }"
     >
       <div 
@@ -25,7 +27,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, reactive, watch, onMounted, onUnmounted, computed, PropType } from 'vue';
+import { defineComponent, ref, reactive, watch, onMounted, onUnmounted, computed, PropType, nextTick } from 'vue';
 
 type CellState = 'empty' | 'filled' | 'path';
 
@@ -467,8 +469,20 @@ export default defineComponent({
     };
     
     // Watch for changes in props
-    watch(() => props.width, resetGrid);
-    watch(() => props.height, resetGrid);
+    watch(() => props.width, () => {
+      resetGrid();
+      nextTick(() => {
+        updateGapSize();
+      });
+    });
+    
+    watch(() => props.height, () => {
+      resetGrid();
+      nextTick(() => {
+        updateGapSize();
+      });
+    });
+    
     watch(() => props.pointsPerSecond, () => {
       if (animationInterval.value !== null && !props.isPaused && !pathFound.value) {
         stopAnimation();
@@ -484,20 +498,72 @@ export default defineComponent({
       }
     });
     
-    // Lifecycle hooks
+    // Calculate a proportional gap size based on actual pixel dimensions
+    const gridRef = ref<HTMLElement | null>(null);
+    const gap = ref(1); // Default gap size
+    
+    const calculateGapSize = (): number => {
+      if (!gridRef.value) return 1; // Default fallback
+      
+      // Get the actual dimensions of the grid container
+      const gridWidth = gridRef.value.clientWidth;
+      const gridHeight = gridRef.value.clientHeight;
+      
+      // Calculate the size of a single cell (without gaps)
+      const cellWidth = gridWidth / props.width;
+      const cellHeight = gridHeight / props.height;
+      
+      // Use the smaller dimension for consistent gaps
+      const cellSize = Math.min(cellWidth, cellHeight);
+      
+      // Set gap as a percentage of cell size
+      const gapPercentage = 0.25;
+      
+      return Math.max(0.5, cellSize * gapPercentage);
+    };
+    
+    // Update gap size when container size changes
+    const updateGapSize = () => {
+      gap.value = calculateGapSize();
+    };
+    
+    // Set up resize observer to update gap size when container size changes
     onMounted(() => {
       initGrid();
       startAnimation();
+      
+      // Initial gap calculation
+      nextTick(() => {
+        updateGapSize();
+      });
+      
+      // Set up resize observer
+      if (typeof ResizeObserver !== 'undefined') {
+        const resizeObserver = new ResizeObserver(() => {
+          updateGapSize();
+        });
+        
+        if (gridRef.value) {
+          resizeObserver.observe(gridRef.value);
+        }
+      }
+      
+      // Also update when window resizes as a fallback
+      window.addEventListener('resize', updateGapSize);
     });
     
     onUnmounted(() => {
       stopAnimation();
+      window.removeEventListener('resize', updateGapSize);
     });
     
     return {
       grid,
       pathFound,
-      resetGrid
+      resetGrid,
+      calculateGapSize,
+      gridRef,
+      gap
     };
   }
 });
