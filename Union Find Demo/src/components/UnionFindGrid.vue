@@ -320,12 +320,13 @@ export default defineComponent({
         lastFrameTime: performance.now(),
         interval: interval,
         batchSize: batchSize,
-        accumulatedTime: 0
+        accumulatedTime: 0,
+        pathFoundTime: 0 // Track when the path was found
       };
       
       // Animation frame handler using requestAnimationFrame for smoother animation
       const animationFrame = (timestamp: number) => {
-        if (pathFound.value || props.isPaused) {
+        if (props.isPaused) {
           animationInterval.value = null;
           return;
         }
@@ -333,8 +334,8 @@ export default defineComponent({
         const elapsed = timestamp - animationState.lastFrameTime;
         animationState.accumulatedTime += elapsed;
         
-        // Only process a batch if enough time has passed
-        if (animationState.accumulatedTime >= animationState.interval) {
+        // Only process a batch if enough time has passed and we haven't found a path yet
+        if (!pathFound.value && animationState.accumulatedTime >= animationState.interval) {
           // Process one or more batches if we've fallen behind
           const batchesToProcess = Math.floor(animationState.accumulatedTime / animationState.interval);
           
@@ -348,10 +349,9 @@ export default defineComponent({
           for (let i = 0; i < actualBatches; i++) {
             addPointBatch(animationState.batchSize);
             
-            // If path found during batch processing, exit early
+            // If path found during batch processing, exit the batch loop
             if (pathFound.value) {
-              animationInterval.value = null;
-              return;
+              break;
             }
           }
           
@@ -361,7 +361,7 @@ export default defineComponent({
         
         animationState.lastFrameTime = timestamp;
         
-        // Request next frame
+        // Request next frame - always continue animation for transitions and path propagation effects
         animationInterval.value = requestAnimationFrame(animationFrame);
       };
       
@@ -434,13 +434,15 @@ export default defineComponent({
       if (checkPathExists()) {
         pathFound.value = true;
         
-        const findPathStartTime = performance.now();
-        findPath();
-        const findPathEndTime = performance.now();
-        // console.log(`Finding path took: ${findPathEndTime - findPathStartTime}ms`);
+        // Add a delay before showing the path to allow the last batch of cells to complete their fade-in animation
+        setTimeout(() => {
+          const findPathStartTime = performance.now();
+          findPath();
+          const findPathEndTime = performance.now();
+          // console.log(`Finding path took: ${findPathEndTime - findPathStartTime}ms`);
+        }, 50 + 3*(100 - props.pointsPerSecond)); // 250ms delay, slightly longer than the 200ms transition
         
-        stopAnimation();
-        return; // Exit early if path is found
+        return; // Exit early if path is found, but don't stop animation
       }
       
       const batchEndTime = performance.now();
