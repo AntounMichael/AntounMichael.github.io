@@ -1,0 +1,41 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  @apply bg-matrix-dark text-white font-mono;
+  letter-spacing: -0.025em;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  @apply font-mono font-bold tracking-tight;
+}
+
+.slider {
+  @apply appearance-none w-full h-2 bg-matrix-light rounded-lg outline-none;
+}
+
+.slider::-webkit-slider-thumb {
+  @apply appearance-none w-4 h-4 bg-matrix-green rounded-full cursor-pointer;
+}
+
+.btn {
+  @apply px-4 py-2 bg-matrix-light text-white border border-matrix-green rounded hover:bg-matrix-green hover:text-matrix-black transition-colors font-mono;
+}
+
+@keyframes propagate {
+  0% {
+    opacity: 0.4;
+    transform: scale(0.85);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0.4;
+    transform: scale(0.85);
+  }
+} 
