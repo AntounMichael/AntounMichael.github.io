@@ -172,8 +172,8 @@ export default defineComponent({
       
       // Convert slider value (1-100) to a percentage between 0.1% and 10% using logarithmic scale
       // Using natural log for smoother progression
-      const minPercent = 0.005; // 0.1%
-      const maxPercent = 0.5;   // 10%
+      const minPercent = 0.005; 
+      const maxPercent = 0.8;   
       
       // Normalize slider value to 0-1 range
       const normalizedValue = (props.pointsPerSecond - 1) / 99;
@@ -182,7 +182,6 @@ export default defineComponent({
       // When normalizedValue is 0.5 (middle of slider), we want to get ~1% (geometric mean of min and max)
       const logScale = Math.exp(normalizedValue * (Math.log(maxPercent) - Math.log(minPercent)) + Math.log(minPercent));
       
-      console.log(logScale);
       // Calculate actual points per second
       return Math.max(1, Math.round(totalCells * logScale));
 
@@ -209,7 +208,7 @@ export default defineComponent({
       if (startCol === -1) return;
       
       const bfsStartTime = performance.now();
-      console.log(`Finding start column took: ${bfsStartTime - startTime}ms`);
+      // console.log(`Finding start column took: ${bfsStartTime - startTime}ms`);
       
       // Use BFS to find the path
       const visited = new Set<number>();
@@ -247,9 +246,9 @@ export default defineComponent({
           const pathMarkingEndTime = performance.now();
           
           const endTime = performance.now();
-          console.log(`BFS iterations: ${iterations}, path length: ${path.length}`);
-          console.log(`Path marking took: ${pathMarkingEndTime - pathMarkingStartTime}ms`);
-          console.log(`Total findPath runtime: ${endTime - startTime}ms`);
+          // console.log(`BFS iterations: ${iterations}, path length: ${path.length}`);
+          // console.log(`Path marking took: ${pathMarkingEndTime - pathMarkingStartTime}ms`);
+          // console.log(`Total findPath runtime: ${endTime - startTime}ms`);
           return;
         }
         
@@ -288,8 +287,8 @@ export default defineComponent({
       }
       
       const endTime = performance.now();
-      console.log(`BFS completed with no path found, iterations: ${iterations}`);
-      console.log(`Total findPath runtime: ${endTime - startTime}ms`);
+      // console.log(`BFS completed with no path found, iterations: ${iterations}`);
+      // console.log(`Total findPath runtime: ${endTime - startTime}ms`);
     };
     
     // Start the animation
@@ -311,16 +310,63 @@ export default defineComponent({
       // Calculate the actual interval needed with this batch size
       const interval = Math.max(MIN_UPDATE_INTERVAL, Math.floor(1000 * batchSize / pointsPerSec));
       
-      console.log("Grid size:", props.width, "x", props.height, "=", props.width * props.height, "cells");
-      console.log("Points per second:", pointsPerSec);
-      console.log("Batch size:", batchSize);
-      console.log("Update interval (ms):", interval);
+      // console.log("Grid size:", props.width, "x", props.height, "=", props.width * props.height, "cells");
+      // console.log("Points per second:", pointsPerSec);
+      // console.log("Batch size:", batchSize);
+      // console.log("Update interval (ms):", interval);
       
-      const endTime = performance.now();
-      console.log(`startAnimation setup took: ${endTime - startTime}ms`);
+      // Store animation state
+      const animationState = {
+        lastFrameTime: performance.now(),
+        interval: interval,
+        batchSize: batchSize,
+        accumulatedTime: 0
+      };
       
-      // Use the batch processing function instead of single point addition
-      animationInterval.value = window.setInterval(() => addPointBatch(batchSize), interval);
+      // Animation frame handler using requestAnimationFrame for smoother animation
+      const animationFrame = (timestamp: number) => {
+        if (pathFound.value || props.isPaused) {
+          animationInterval.value = null;
+          return;
+        }
+        
+        const elapsed = timestamp - animationState.lastFrameTime;
+        animationState.accumulatedTime += elapsed;
+        
+        // Only process a batch if enough time has passed
+        if (animationState.accumulatedTime >= animationState.interval) {
+          // Process one or more batches if we've fallen behind
+          const batchesToProcess = Math.floor(animationState.accumulatedTime / animationState.interval);
+          
+          // If we're falling significantly behind, log a warning
+          if (batchesToProcess > 1) {
+            //console.warn(`⚠️ Animation falling behind: Processing ${batchesToProcess} batches at once`);
+          }
+          
+          // Process batches (limit to 3 max to prevent freezing on severe lag)
+          const actualBatches = Math.min(batchesToProcess, 3);
+          for (let i = 0; i < actualBatches; i++) {
+            addPointBatch(animationState.batchSize);
+            
+            // If path found during batch processing, exit early
+            if (pathFound.value) {
+              animationInterval.value = null;
+              return;
+            }
+          }
+          
+          // Subtract the time used (only count the batches we actually processed)
+          animationState.accumulatedTime -= actualBatches * animationState.interval;
+        }
+        
+        animationState.lastFrameTime = timestamp;
+        
+        // Request next frame
+        animationInterval.value = requestAnimationFrame(animationFrame);
+      };
+      
+      // Start the animation loop
+      animationInterval.value = requestAnimationFrame(animationFrame);
     };
     
     // Add a batch of random points to the grid
@@ -330,7 +376,7 @@ export default defineComponent({
       const batchStartTime = performance.now();
       
       // Log the number of empty cells (no need to find them anymore)
-      console.log(`Empty cells available: ${emptyCellIndices.value.length}`);
+      // console.log(`Empty cells available: ${emptyCellIndices.value.length}`);
 
       // Process up to batchSize points or until a path is found
       for (let i = 0; i < batchSize && emptyCellIndices.value.length > 0; i++) {
@@ -380,7 +426,7 @@ export default defineComponent({
         const unionEndTime = performance.now();
         
         if (i === 0) { // Only log once per batch
-          console.log(`Union operations took: ${unionEndTime - unionStartTime}ms`);
+          // console.log(`Union operations took: ${unionEndTime - unionStartTime}ms`);
         }
       }
       
@@ -391,20 +437,20 @@ export default defineComponent({
         const findPathStartTime = performance.now();
         findPath();
         const findPathEndTime = performance.now();
-        console.log(`Finding path took: ${findPathEndTime - findPathStartTime}ms`);
+        // console.log(`Finding path took: ${findPathEndTime - findPathStartTime}ms`);
         
         stopAnimation();
         return; // Exit early if path is found
       }
       
       const batchEndTime = performance.now();
-      console.log(`Total batch processing took: ${batchEndTime - batchStartTime}ms for ${batchSize} points`);
+      // console.log(`Total batch processing took: ${batchEndTime - batchStartTime}ms for ${batchSize} points`);
     };
     
     // Stop the animation
     const stopAnimation = () => {
       if (animationInterval.value !== null) {
-        clearInterval(animationInterval.value);
+        cancelAnimationFrame(animationInterval.value);
         animationInterval.value = null;
       }
     };
