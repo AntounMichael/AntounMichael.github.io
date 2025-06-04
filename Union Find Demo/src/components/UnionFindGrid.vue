@@ -70,8 +70,6 @@ export default defineComponent({
     const pathFound = ref(false);
     const animationInterval = ref<number | null>(null);
     
-    // Maintain a list of empty cell indices
-    const emptyCellIndices = ref<number[]>([]);
     
     // Initialize Union-Find data structure
     const initUnionFind = () => {
@@ -108,7 +106,7 @@ export default defineComponent({
       if (rank.value[rootX] < rank.value[rootY]) {
         parent.value[rootX] = rootY;
         // Propagate bottom connectivity
-        connectsToBottom.value[rootY] = connectsToBottom.value[rootY] || connectsToBottom.value[rootX];
+        connectsToBottom.value[rootY] = connectsToBottom.value[rootY] || connectsToBottom.value[rootX]; // just do this at the beginning??
       } else {
         parent.value[rootY] = rootX;
         // Propagate bottom connectivity
@@ -123,7 +121,6 @@ export default defineComponent({
     // Initialize grid
     const initGrid = () => {
       grid.value = [];
-      emptyCellIndices.value = []; // Reset empty cell indices
       
       for (let row = 0; row < props.height; row++) {
         for (let col = 0; col < props.width; col++) {
@@ -134,7 +131,6 @@ export default defineComponent({
             state: 'empty',
             propagationDelay: 0
           });
-          emptyCellIndices.value.push(index); // Add all cells as empty initially
         }
       }
       pathFound.value = false;
@@ -164,7 +160,7 @@ export default defineComponent({
       }
       
       const endTime = performance.now();
-      //console.log(`checkPathExists runtime: ${endTime - startTime}ms`);
+      // console.log(`checkPathExists runtime: ${endTime - startTime}ms`);
       return false;
     };
     
@@ -328,6 +324,7 @@ export default defineComponent({
       
       // Animation frame handler using requestAnimationFrame for smoother animation
       const animationFrame = (timestamp: number) => {
+        // console.log('frame requested');
         if (props.isPaused) {
           animationInterval.value = null;
           return;
@@ -335,33 +332,39 @@ export default defineComponent({
         
         const elapsed = timestamp - animationState.lastFrameTime;
         animationState.accumulatedTime += elapsed;
-        
+
         // Only process a batch if enough time has passed and we haven't found a path yet
-        if (!pathFound.value && animationState.accumulatedTime >= animationState.interval) {
+        if (!pathFound.value && (elapsed >= animationState.interval)) {
           // Process one or more batches if we've fallen behind
-          const batchesToProcess = Math.floor(animationState.accumulatedTime / animationState.interval);
+          // const batchesToProcess = Math.floor(animationState.accumulatedTime / animationState.interval);
           
-          // If we're falling significantly behind, log a warning
-          if (batchesToProcess > 1) {
-            //console.warn(`⚠️ Animation falling behind: Processing ${batchesToProcess} batches at once`);
-          }
+          // // If we're falling significantly behind, log a warning
+          // if (batchesToProcess > 1) {
+          //   console.warn(`⚠️ Animation falling behind: Processing ${batchesToProcess} batches at once`);
+          // }
           
-          // Process batches (limit to 3 max to prevent freezing on severe lag)
-          const actualBatches = Math.min(batchesToProcess, 3);
-          for (let i = 0; i < actualBatches; i++) {
-            addPointBatch(animationState.batchSize);
+          // // Process batches (limit to 3 max to prevent freezing on severe lag)
+          // const actualBatches = Math.min(batchesToProcess, 3);
+          // for (let i = 0; i < actualBatches; i++) {
+          //   addPointBatch(animationState.batchSize);
             
-            // If path found during batch processing, exit the batch loop
-            if (pathFound.value) {
-              break;
-            }
-          }
+          //   // If path found during batch processing, exit the batch loop
+          //   if (pathFound.value) {
+          //     break;
+          //   }
+          // }
+
           
-          // Subtract the time used (only count the batches we actually processed)
-          animationState.accumulatedTime -= actualBatches * animationState.interval;
+          // // Subtract the time used (only count the batches we actually processed)
+          // animationState.accumulatedTime -= actualBatches * animationState.interval;
+
+
+
+          addPointBatch(animationState.batchSize);
+          animationState.lastFrameTime = timestamp;
+          // console.log('frame delivered');
         }
         
-        animationState.lastFrameTime = timestamp;
         
         // Request next frame - always continue animation for transitions and path propagation effects
         animationInterval.value = requestAnimationFrame(animationFrame);
@@ -373,76 +376,89 @@ export default defineComponent({
     
     // Add a batch of random points to the grid
     const addPointBatch = (batchSize: number): void => {
+      const startTime = performance.now();
       if (pathFound.value || props.isPaused) return;
       
       const batchStartTime = performance.now();
       
       // Log the number of empty cells (no need to find them anymore)
-      // console.log(`Empty cells available: ${emptyCellIndices.value.length}`);
-
+      const directions = [
+        { dr: -1, dc: 0 }, // up
+        { dr: 0, dc: 1 },  // right
+        { dr: 1, dc: 0 },  // down
+        { dr: 0, dc: -1 }  // left
+      ];
+      
+      var row = 0;
+      var col = 0;
+      var cell = <Cell>({
+        row: 0,
+        col: 0,
+        state: 'empty',
+        propagationDelay: 0
+      });
+      var newRow = 0;
+      var newCol = 0;
+      var neighborIndex = 0;
       // Process up to batchSize points or until a path is found
-      for (let i = 0; i < batchSize && emptyCellIndices.value.length > 0; i++) {
+      for (let i = 0; i < batchSize; i++) {
         // Select a random empty cell
-        const randomArrayIndex = Math.floor(Math.random() * emptyCellIndices.value.length);
-        const cellIndex = emptyCellIndices.value[randomArrayIndex];
-        
-        // Remove the selected index using the efficient swap-and-pop method
-        // Swap with the last element, then pop (both O(1) operations)
-        emptyCellIndices.value[randomArrayIndex] = emptyCellIndices.value[emptyCellIndices.value.length - 1];
-        emptyCellIndices.value.pop();
-        
+        var cellIndex; 
+        while (true){
+          cellIndex = Math.floor(Math.random() * props.height * props.width);
+          if (grid.value[cellIndex].state === 'empty'){
+            break;
+          }
+        }
         // Get the cell from the grid
-        const cell = grid.value[cellIndex];
+        cell = grid.value[cellIndex];
         
         // Fill the cell
         cell.state = 'filled';
         
         // Connect with adjacent filled cells
-        const unionStartTime = performance.now();
-        const row = cell.row;
-        const col = cell.col;
+        //const unionStartTime = performance.now();
+        row = cell.row;
+        col = cell.col;
         
         // Check neighbors (up, right, down, left)
-        const directions = [
-          { dr: -1, dc: 0 }, // up
-          { dr: 0, dc: 1 },  // right
-          { dr: 1, dc: 0 },  // down
-          { dr: 0, dc: -1 }  // left
-        ];
         
+        const randomStart = performance.now();
         for (const { dr, dc } of directions) {
-          const newRow = row + dr;
-          const newCol = col + dc;
+          newRow = row + dr;
+          newCol = col + dc;
           
           if (
             newRow >= 0 && newRow < props.height &&
             newCol >= 0 && newCol < props.width
           ) {
-            const neighborIndex = getCellIndex(newRow, newCol);
+            neighborIndex = getCellIndex(newRow, newCol);
             
             if (grid.value[neighborIndex].state === 'filled') {
               union(cellIndex, neighborIndex);
             }
           }
         }
-        const unionEndTime = performance.now();
+        //console.log(`array stuffs: ${performance.now() - randomStart}ms`); 
+        //const unionEndTime = performance.now();
         
         if (i === 0) { // Only log once per batch
           // console.log(`Union operations took: ${unionEndTime - unionStartTime}ms`);
         }
       }
+      //console.log(`adding point batch: ${performance.now() - startTime}ms`);
+
       
       // Check if there's a path from top to bottom after all points have been added
       if (checkPathExists()) {
         pathFound.value = true;
-        
         // Add a delay before showing the path to allow the last batch of cells to complete their fade-in animation
         setTimeout(() => {
           const findPathStartTime = performance.now();
           findPath();
           const findPathEndTime = performance.now();
-          // console.log(`Finding path took: ${findPathEndTime - findPathStartTime}ms`);
-        }, 50 + 3*(100 - props.pointsPerSecond)); // 250ms delay, slightly longer than the 200ms transition
+          console.log(`Finding path took: ${findPathEndTime - findPathStartTime}ms`);
+        }, Math.max(50, 3*(100 - props.pointsPerSecond))); // 250ms delay, slightly longer than the 200ms transition
         
         return; // Exit early if path is found, but don't stop animation
       }
