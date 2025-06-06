@@ -14,11 +14,11 @@
         :key="index" 
         :class="[
           'aspect-square transition-colors duration-200',
-          cell.state === 'empty' ? 'bg-matrix-black' : 
-          cell.state === 'filled' ? 'bg-matrix-green' : 
-          cell.state === 'path' ? 'bg-matrix-red' : ''
+          cell.state === 0 ? 'bg-matrix-black' : 
+          cell.state === 1 ? 'bg-matrix-green' : 
+          cell.state === 2 ? 'bg-matrix-red' : ''
         ]"
-        :style="cell.state === 'path' ? { 
+        :style="cell.state === 2 ? { 
           animation: `propagate 2s ease-in-out ${cell.propagationDelay}s infinite` 
         } : {}"
       ></div>
@@ -29,7 +29,12 @@
 <script lang="ts">
 import { defineComponent, ref, reactive, watch, onMounted, onUnmounted, computed, PropType, nextTick } from 'vue';
 
-type CellState = 'empty' | 'filled' | 'path';
+//type CellState = 'empty' | 'filled' | 'path';
+enum CellState {
+  Empty = 0,
+  Filled = 1,
+  Path = 2
+}
 
 interface Cell {
   row: number;
@@ -136,7 +141,7 @@ export default defineComponent({
           grid.value.push({
             row,
             col,
-            state: 'empty',
+            state: CellState.Empty,
             propagationDelay: 0
           });
         }
@@ -157,7 +162,7 @@ export default defineComponent({
       // Check if any cell in the top row is connected to the bottom
       for (let topCol = 0; topCol < props.width; topCol++) {
         const topIndex = getCellIndex(0, topCol);
-        if (grid.value[topIndex].state !== 'filled') continue;
+        if (grid.value[topIndex].state !== CellState.Filled) continue;
         
         const root = find(topIndex);
         if (connectsToBottom.value[root]) {
@@ -203,7 +208,7 @@ export default defineComponent({
       
       for (let topCol = 0; topCol < props.width; topCol++) {
         const topIndex = getCellIndex(0, topCol);
-        if (grid.value[topIndex].state !== 'filled') continue;
+        if (grid.value[topIndex].state !== CellState.Filled) continue;
         
         const root = find(topIndex);
         if (connectsToBottom.value[root]) {
@@ -245,7 +250,7 @@ export default defineComponent({
           var currIndex = index;
           // Set propagation delays based on position in path
           while (currIndex != startIndex) {
-            grid.value[currIndex].state = 'path';
+            grid.value[currIndex].state = CellState.Path;
             
             // Calculate normalized position from top (0) to bottom (1)
             const cellRow = Math.floor(currIndex / props.width);
@@ -277,7 +282,7 @@ export default defineComponent({
             
             if (
               !visited.has(newIndex) &&
-              grid.value[newIndex].state === 'filled' &&
+              grid.value[newIndex].state === CellState.Filled &&
               find(index) === find(newIndex)
             ) {
               visited.add(newIndex);
@@ -401,7 +406,7 @@ export default defineComponent({
       var cell = <Cell>({
         row: 0,
         col: 0,
-        state: 'empty',
+        state: CellState.Empty,
         propagationDelay: 0
       });
       var newRow = 0;
@@ -413,7 +418,7 @@ export default defineComponent({
         var cellIndex; 
         while (true){
           cellIndex = Math.floor(Math.random() * props.height * props.width);
-          if (grid.value[cellIndex].state === 'empty'){
+          if (grid.value[cellIndex].state === CellState.Empty){
             break;
           }
         }
@@ -421,7 +426,7 @@ export default defineComponent({
         cell = grid.value[cellIndex];
         
         // Fill the cell
-        cell.state = 'filled';
+        cell.state = CellState.Filled;
         
         // Connect with adjacent filled cells
         //const unionStartTime = performance.now();
@@ -441,7 +446,7 @@ export default defineComponent({
           ) {
             neighborIndex = getCellIndex(newRow, newCol);
             
-            if (grid.value[neighborIndex].state === 'filled') {
+            if (grid.value[neighborIndex].state === CellState.Filled) {
               union(cellIndex, neighborIndex);
             }
           }
