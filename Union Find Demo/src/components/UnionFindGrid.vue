@@ -64,6 +64,7 @@ export default defineComponent({
     const parent = ref<number[]>([]);
     const rank = ref<number[]>([]);
     const connectsToBottom = ref<boolean[]>([]);
+    const connectsToTop = ref<boolean[]>([]);
     
     // Grid state
     const grid = ref<Cell[]>([]);
@@ -77,11 +78,14 @@ export default defineComponent({
       parent.value = Array(size).fill(0).map((_, i) => i);
       rank.value = Array(size).fill(0);
       connectsToBottom.value = Array(size).fill(false);
+      connectsToTop.value = Array(size).fill(false);
       
       // Mark bottom row cells as connecting to bottom
       for (let col = 0; col < props.width; col++) {
         const bottomIndex = getCellIndex(props.height - 1, col);
         connectsToBottom.value[bottomIndex] = true;
+        const topIndex = getCellIndex(0, col);
+        connectsToTop.value[topIndex] = true;
       }
     };
     
@@ -102,15 +106,19 @@ export default defineComponent({
       
       if (rootX === rootY) return;
       
+      connectsToBottom.value[rootY] = connectsToBottom.value[rootY] || connectsToBottom.value[rootX]; 
+      connectsToTop.value[rootY] = connectsToTop.value[rootY] || connectsToTop.value[rootX]; 
+      if (connectsToTop.value[rootX] && connectsToBottom.value[rootX]){
+        pathFound.value = true;
+      }
+      
       // Union by rank
       if (rank.value[rootX] < rank.value[rootY]) {
         parent.value[rootX] = rootY;
         // Propagate bottom connectivity
-        connectsToBottom.value[rootY] = connectsToBottom.value[rootY] || connectsToBottom.value[rootX]; // just do this at the beginning??
+        
       } else {
         parent.value[rootY] = rootX;
-        // Propagate bottom connectivity
-        connectsToBottom.value[rootX] = connectsToBottom.value[rootX] || connectsToBottom.value[rootY];
         
         if (rank.value[rootX] === rank.value[rootY]) {
           rank.value[rootX]++;
@@ -191,6 +199,7 @@ export default defineComponent({
       
       // Find a top cell that's connected to the bottom
       let startCol = -1;
+      let pathPrev = Array(props.width * props.height).fill(-1);
       
       for (let topCol = 0; topCol < props.width; topCol++) {
         const topIndex = getCellIndex(0, topCol);
@@ -206,58 +215,56 @@ export default defineComponent({
       if (startCol === -1) return;
       
       const bfsStartTime = performance.now();
-      // console.log(`Finding start column took: ${bfsStartTime - startTime}ms`);
+      console.log(`Finding start column took: ${bfsStartTime - startTime}ms`);
       
       // Use BFS to find the path
       const visited = new Set<number>();
-      const queue: { index: number, path: number[], depth: number }[] = [];
+      const queue: { index: number, depth: number }[] = [];
       const startIndex = getCellIndex(0, startCol);
-      queue.push({ index: startIndex, path: [startIndex], depth: 0 });
+      queue.push({ index: startIndex, depth: 0 });
       visited.add(startIndex);
+      
+      const directions = [
+        { dr: -1, dc: 0 }, // up
+        { dr: 0, dc: 1 },  // right
+        { dr: 1, dc: 0 },  // down
+        { dr: 0, dc: -1 }  // left
+      ];
       
       let iterations = 0;
       while (queue.length > 0) {
         iterations++;
-        const { index, path, depth } = queue.shift()!;
+        const { index, depth } = queue.shift()!;
         const row = Math.floor(index / props.width);
         const col = index % props.width;
         
         // If we've reached the bottom row, we've found a path
         if (row === props.height - 1) {
           // Calculate the total path length for delay normalization
-          const totalLength = path.length;
-          
-          const pathMarkingStartTime = performance.now();
+          const totalLength = depth + 1;
+          var currIndex = index;
           // Set propagation delays based on position in path
-          for (let i = 0; i < path.length; i++) {
-            const cellIndex = path[i];
-            grid.value[cellIndex].state = 'path';
+          while (currIndex != startIndex) {
+            grid.value[currIndex].state = 'path';
             
             // Calculate normalized position from top (0) to bottom (1)
-            const cellRow = Math.floor(cellIndex / props.width);
+            const cellRow = Math.floor(currIndex / props.width);
             const normalizedPosition = cellRow / (props.height - 1);
             
             // Use normalized position for delay (0 at top, 1 at bottom)
             // This creates a wave-like effect from top to bottom
-            grid.value[cellIndex].propagationDelay = normalizedPosition * 0.5;
+            grid.value[currIndex].propagationDelay = normalizedPosition * 0.5;
+
+            currIndex = pathPrev[currIndex]; // advance backwards along the path
           }
-          const pathMarkingEndTime = performance.now();
           
           const endTime = performance.now();
-          // console.log(`BFS iterations: ${iterations}, path length: ${path.length}`);
-          // console.log(`Path marking took: ${pathMarkingEndTime - pathMarkingStartTime}ms`);
-          // console.log(`Total findPath runtime: ${endTime - startTime}ms`);
+          console.log(`BFS iterations: ${iterations}, path length: ${totalLength}`);
+          console.log(`Total findPath runtime: ${endTime - startTime}ms`);
           return;
         }
         
         // Check neighbors (up, right, down, left)
-        const directions = [
-          { dr: -1, dc: 0 }, // up
-          { dr: 0, dc: 1 },  // right
-          { dr: 1, dc: 0 },  // down
-          { dr: 0, dc: -1 }  // left
-        ];
-        
         for (const { dr, dc } of directions) {
           const newRow = row + dr;
           const newCol = col + dc;
@@ -274,9 +281,9 @@ export default defineComponent({
               find(index) === find(newIndex)
             ) {
               visited.add(newIndex);
+              pathPrev[newIndex] = index; 
               queue.push({
                 index: newIndex,
-                path: [...path, newIndex],
                 depth: depth + 1
               });
             }
@@ -450,18 +457,27 @@ export default defineComponent({
 
       
       // Check if there's a path from top to bottom after all points have been added
-      if (checkPathExists()) {
-        pathFound.value = true;
-        // Add a delay before showing the path to allow the last batch of cells to complete their fade-in animation
-        setTimeout(() => {
+      if (pathFound.value){
+          // setTimeout(() => {
           const findPathStartTime = performance.now();
           findPath();
           const findPathEndTime = performance.now();
           console.log(`Finding path took: ${findPathEndTime - findPathStartTime}ms`);
-        }, Math.max(50, 3*(100 - props.pointsPerSecond))); // 250ms delay, slightly longer than the 200ms transition
+        // }, Math.max(50, 3*(100 - props.pointsPerSecond))); // 250ms delay, slightly longer than the 200ms transition
         
-        return; // Exit early if path is found, but don't stop animation
       }
+      // if (checkPathExists()) {
+      //   pathFound.value = true;
+      //   // Add a delay before showing the path to allow the last batch of cells to complete their fade-in animation
+      //   setTimeout(() => {
+      //     const findPathStartTime = performance.now();
+      //     findPath();
+      //     const findPathEndTime = performance.now();
+      //     console.log(`Finding path took: ${findPathEndTime - findPathStartTime}ms`);
+      //   }, Math.max(50, 3*(100 - props.pointsPerSecond))); // 250ms delay, slightly longer than the 200ms transition
+        
+      //   return; // Exit early if path is found, but don't stop animation
+      // }
       
       const batchEndTime = performance.now();
       // console.log(`Total batch processing took: ${batchEndTime - batchStartTime}ms for ${batchSize} points`);
